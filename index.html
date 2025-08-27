@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Royal Chaklis - Authentic Crunchy Snacks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-yellow-100 font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-orange-700 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between p-4">
+      <h1 class="text-2xl font-extrabold tracking-wide">🥨 Royal Chaklis</h1>
+      <div class="flex items-center gap-3">
+        <a href="#track" class="underline text-white/90 hover:text-white">Track Order</a>
+        <button id="cartBtn" class="bg-white text-orange-700 px-4 py-2 rounded-full font-semibold hover:bg-orange-200 transition">
+          🛒 Cart (<span id="cartCount">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative bg-orange-100 text-center py-16 overflow-hidden">
+    <h2 class="text-5xl font-extrabold text-orange-800 drop-shadow-lg">Taste the Royal Crunch</h2>
+    <p class="text-lg mt-4 text-gray-700">Premium homemade Chaklis – Crispy, Crunchy & Full of Love ❤️</p>
+    <button onclick="document.getElementById('productList').scrollIntoView({behavior:'smooth'})"
+      class="mt-6 bg-orange-700 text-white px-8 py-3 rounded-full text-lg shadow-lg hover:bg-orange-800 transition">
+      Shop Now
+    </button>
+    <div class="absolute inset-0 bg-[url('https://media.istockphoto.com/id/1470881048/photo/butter-murukku-also-known-as-benne-murukku-or-venna-chakli-chakli-is-a-savory-deep-fried.jpg?s=612x612&w=is&k=20&c=O2Af_7XhVICd84_RRb6fGQ6MDjDy-dcJwiXjIFCpBM4=')] bg-cover bg-center opacity-20"></div>
+  </section>
+
+  <!-- Product Section -->
+  <main class="max-w-6xl mx-auto py-12 px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full" id="productList"></main>
+
+  <!-- Empty State -->
+  <div id="emptyState" class="text-center text-gray-600 hidden">
+    <p class="text-lg">No products yet. Please check back soon!</p>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <aside id="cartSidebar" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl p-6 transform translate-x-full transition-transform duration-300 rounded-l-2xl">
+    <h3 class="text-2xl font-bold mb-4 text-orange-700">Your Cart</h3>
+    <ul id="cartItems" class="space-y-2 max-h-[55vh] overflow-auto"></ul>
+    <p class="mt-4 font-bold text-lg">Total: ₹<span id="cartTotal">0</span></p>
+    <button id="checkoutBtn" class="bg-gradient-to-r from-orange-600 to-red-500 text-white px-4 py-2 mt-4 rounded-full w-full font-semibold shadow hover:scale-105 transition">
+      Checkout
+    </button>
+    <button onclick="toggleCart()" class="mt-3 w-full text-sm text-gray-500 hover:underline">Close</button>
+  </aside>
+
+  <!-- Checkout Form Modal -->
+  <div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-8 rounded-2xl w-96 shadow-2xl relative">
+      <h2 class="text-2xl font-bold mb-4 text-center text-orange-700">Place Your Order</h2>
+      <form id="orderForm" class="space-y-4">
+        <input type="text" id="name" placeholder="Full Name" class="w-full border p-3 rounded-lg" required>
+        <input type="email" id="email" placeholder="Email" class="w-full border p-3 rounded-lg" required>
+        <input type="text" id="phone" placeholder="Phone Number" class="w-full border p-3 rounded-lg" required>
+        <textarea id="address" placeholder="Delivery Address" class="w-full border p-3 rounded-lg" required></textarea>
+        <button type="submit" class="bg-gradient-to-r from-orange-600 to-red-500 text-white px-4 py-3 rounded-full w-full font-bold hover:scale-105 transition">
+          Confirm Order
+        </button>
+      </form>
+      <button onclick="document.getElementById('checkoutModal').classList.add('hidden')"
+        class="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl">✕</button>
+    </div>
+  </div>
+
+  <!-- Order Tracking -->
+  <section id="track" class="bg-white/70 backdrop-blur py-12 px-6 mt-auto">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-orange-800 mb-4">📦 Track / Manage Your Order</h2>
+      <p class="text-gray-700 mb-4">Enter your <b>Email</b> and <b>Order ID</b> to view live status and cancel (if eligible).</p>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <input id="trackEmail" type="email" placeholder="Enter your email" class="border p-3 rounded-lg" />
+        <input id="trackOrderId" type="text" placeholder="Enter Order ID" class="border p-3 rounded-lg" />
+        <button id="trackBtn" class="bg-orange-700 hover:bg-orange-800 text-white px-6 py-3 rounded-lg font-semibold">Track</button>
+      </div>
+      <div id="trackResult" class="mt-4 hidden">
+        <div class="p-4 bg-white rounded-xl shadow">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="font-semibold">Order ID: <span id="t_id"></span></p>
+              <p class="mt-1">Status: <span id="t_status" class="px-2 py-1 rounded text-white text-sm"></span></p>
+              <p class="mt-1">Total: ₹<span id="t_total"></span></p>
+            </div>
+            <button id="cancelBtn" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg h-fit">Cancel Order</button>
+          </div>
+          <div id="t_items" class="mt-3 text-sm text-gray-700"></div>
+          <p id="cancelHint" class="text-xs text-gray-500 mt-2"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="bg-orange-50 py-12 px-6 text-center">
+    <h2 class="text-3xl font-bold text-orange-800 mb-4">📞 Contact Us</h2>
+    <p class="text-gray-700 mb-6">Have questions or want to place an order directly? Get in touch with us!</p>
+    <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+      <a id="whBtn" href="#" target="_blank"
+         class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg flex items-center gap-2">
+        <span>💬 WhatsApp Us</span>
+      </a>
+      <a href="tel:+919307320279"
+         class="bg-orange-700 hover:bg-orange-800 text-white px-6 py-3 rounded-full font-semibold shadow-lg flex items-center gap-2">
+        📞 Call Us
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-orange-700 text-white text-center py-5">
+    &copy; 2025 Royal Chaklis. All rights reserved. <br>
+    Crafted with ❤️ by Shaikh Arsalan | Web Developer: +91 9307320279
+  </footer>
+
+  <!-- Firebase + App Logic -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import {
+      getFirestore, collection, addDoc, doc, getDoc, onSnapshot, updateDoc,
+      serverTimestamp, query, orderBy
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // 🔧 Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Helpers
+    const badge = (status) => ({pending:'bg-yellow-500',accepted:'bg-green-600',rejected:'bg-red-600',cancelled:'bg-gray-600'}[status]||'bg-gray-600');
+
+    // Load Products
+    const productsRef = collection(db, 'products');
+    const productList = document.getElementById('productList');
+    const emptyState = document.getElementById('emptyState');
+
+    const qProducts = query(productsRef, orderBy('createdAt', 'desc'));
+    onSnapshot(qProducts, (snap) => {
+      productList.innerHTML = '';
+      if (snap.empty) { emptyState.classList.remove('hidden'); return; }
+      emptyState.classList.add('hidden');
+      let i=0;
+      snap.forEach((d)=>{
+        const p=d.data(); const id=d.id;
+        const div=document.createElement('div');
+        div.className='bg-white rounded-2xl shadow-lg p-5 hover:shadow-2xl transition transform hover:-translate-y-2';
+        div.innerHTML=`
+          <img src="${p.image||''}" alt="${p.name||''}" class="w-full h-48 object-cover rounded-xl">
+          <h3 class="font-bold text-xl mt-3 text-orange-700">${p.name||''}</h3>
+          <p class="text-orange-600 font-semibold text-lg">₹${p.price||0}</p>
+          <div class="flex items-center gap-2 mt-3">
+            <input type="number" min="1" value="1" class="w-16 border rounded p-2" id="qty-${id}">
+            <button data-id="${id}" class="addBtn bg-gradient-to-r from-orange-600 to-red-500 text-white px-4 py-2 rounded-full flex-1 hover:scale-105 transition">Add to Cart</button>
+          </div>`;
+        productList.appendChild(div);
+        gsap.from(div,{opacity:0,y:40,duration:0.6,delay:i*0.05}); i++;
+      });
+
+      document.querySelectorAll('.addBtn').forEach(btn=>{
+        btn.addEventListener('click', async (e)=>{
+          const id=e.currentTarget.getAttribute('data-id');
+          const qty=parseInt(document.getElementById(`qty-${id}`).value||'1',10);
+          const d=await getDoc(doc(db,'products',id));
+          if(d.exists()) addToCart({ id, ...d.data(), qty });
+        });
+      });
+    });
+
+    // Cart
+    let cart=[];
+    const cartBtn=document.getElementById('cartBtn');
+    const cartItems=document.getElementById('cartItems');
+    const cartTotal=document.getElementById('cartTotal');
+
+    function addToCart(item){ const i=cart.findIndex(x=>x.id===item.id); if(i>-1) cart[i].qty+=item.qty; else cart.push(item); updateCart(); }
+    function updateCart(){
+      document.getElementById('cartCount').innerText = cart.reduce((s,x)=>s+x.qty,0);
+      cartItems.innerHTML=''; let total=0;
+      cart.forEach((item,idx)=>{
+        const line=item.price*item.qty; total+=line;
+        const li=document.createElement('li');
+        li.className='flex justify-between items-center border-b pb-1 gap-2';
+        li.innerHTML=`
+          <div class="text-sm">
+            <div class="font-semibold">${item.name}</div>
+            <div>₹${item.price} × ${item.qty} = <span class="font-semibold">₹${line}</span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-2 py-1 border rounded" data-dec="${idx}">-</button>
+            <button class="px-2 py-1 border rounded" data-inc="${idx}">+</button>
+            <button class="text-red-600 font-bold" data-rem="${idx}">x</button>
+          </div>`;
+        cartItems.appendChild(li);
+      });
+      cartTotal.innerText=total;
+      cartItems.querySelectorAll('[data-inc]').forEach(b=>b.onclick=()=>{ cart[b.dataset.inc].qty++; updateCart(); });
+      cartItems.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{ if(cart[b.dataset.dec].qty>1) cart[b.dataset.dec].qty--; updateCart(); });
+      cartItems.querySelectorAll('[data-rem]').forEach(b=>b.onclick=()=>{ cart.splice(b.dataset.rem,1); updateCart(); });
+    }
+    function toggleCart(){ document.getElementById('cartSidebar').classList.toggle('translate-x-full'); }
+    cartBtn.addEventListener('click', toggleCart);
+
+    // Checkout
+    document.getElementById('checkoutBtn').addEventListener('click', ()=>{
+      if(cart.length===0) return alert('Your cart is empty.');
+      document.getElementById('checkoutModal').classList.remove('hidden');
+    });
+
+    document.getElementById('orderForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if(cart.length===0) return alert('Your cart is empty.');
+
+      const name=document.getElementById('name').value.trim();
+      const email=document.getElementById('email').value.trim().toLowerCase();
+      const phone=document.getElementById('phone').value.trim();
+      const address=document.getElementById('address').value.trim();
+
+      const items=cart.map(c=>({ productId:c.id, name:c.name, price:c.price, qty:c.qty }));
+      const total=items.reduce((s,x)=>s+x.price*x.qty,0);
+
+      const order={
+        items,total,status:'pending',
+        customer:{ name,email,phone,address },
+        createdAt: serverTimestamp(),
+        cancelableForMs: 5*60*1000 // 5 minutes window
+      };
+
+      const ref=await addDoc(collection(db,'orders'),order);
+
+      // Save + auto-track last order
+      localStorage.setItem('royal_last_order', ref.id);
+      localStorage.setItem('royal_last_email', email);
+      startOrderTracking(ref.id, email);
+
+      // Reset UI
+      cart=[]; updateCart();
+      document.getElementById('checkoutModal').classList.add('hidden');
+      toggleCart();
+      alert(`✅ Order placed! Your Order ID is: ${ref.id}`);
+
+      // WhatsApp notify (owner)
+      const owner='919307320279';
+      const msg=encodeURIComponent(
+        `New Order @ Royal Chaklis\nOrder ID: ${ref.id}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nTotal: ₹${total}\nItems:\n`+
+        items.map(i=>`• ${i.name} x ${i.qty} = ₹${i.price*i.qty}`).join('\n')
+      );
+      document.getElementById('whBtn').href=`https://wa.me/${owner}?text=${msg}`;
+      window.open(`https://wa.me/${owner}?text=${msg}`,'_blank');
+    });
+
+    // Tracking + Cancel
+    const tId=document.getElementById('t_id');
+    const tStatus=document.getElementById('t_status');
+    const tTotal=document.getElementById('t_total');
+    const tItems=document.getElementById('t_items');
+    const trackResult=document.getElementById('trackResult');
+    const cancelBtn=document.getElementById('cancelBtn');
+    const cancelHint=document.getElementById('cancelHint');
+    const trackBtn=document.getElementById('trackBtn');
+    const trackEmail=document.getElementById('trackEmail');
+    const trackOrderId=document.getElementById('trackOrderId');
+
+    function renderTrack(id,data){
+      tId.textContent=id;
+      tStatus.textContent=data.status;
+      tStatus.className=`px-2 py-1 rounded text-white text-sm ${badge(data.status)}`;
+      tTotal.textContent=data.total;
+      tItems.innerHTML=(data.items||[]).map(i=>`<div>• ${i.name} × ${i.qty} = ₹${i.price*i.qty}</div>`).join('');
+      trackResult.classList.remove('hidden');
+
+      // Cancel logic
+      const created = data.createdAt?.toMillis ? data.createdAt.toMillis() : null;
+      const windowMs = data.cancelableForMs || 5*60*1000;
+      const now=Date.now();
+      let allowed=false, msg='';
+
+      if(data.status==='pending' && created){
+        const left = (created+windowMs) - now;
+        allowed = left>0;
+        const mins = Math.max(0, Math.floor(left/60000));
+        const secs = Math.max(0, Math.floor((left%60000)/1000));
+        msg = allowed
+          ? `⏳ You can cancel for ${mins}m ${secs}s (only while status is "pending").`
+          : `❗ Cancellation window ended.`;
+      }else{
+        msg = data.status==='pending'
+          ? '⏳ Cancellation available shortly after order is created.'
+          : '❗ Order cannot be cancelled in current status.';
+      }
+
+      cancelHint.textContent=msg;
+      cancelBtn.classList.toggle('hidden', !allowed);
+      cancelBtn.disabled = !allowed;
+      cancelBtn.dataset.orderId = id;
+    }
+
+    let unsubscribeOrder=null;
+    function startOrderTracking(id, emailCheck){
+      if(!id) return;
+      if(unsubscribeOrder) unsubscribeOrder();
+      const dRef=doc(db,'orders',id);
+      unsubscribeOrder=onSnapshot(dRef,(snap)=>{
+        if(!snap.exists()) return alert('Order not found.');
+        const data=snap.data();
+        const enteredEmail=(trackEmail.value||emailCheck||'').toLowerCase();
+        // basic privacy: email must match
+        if(enteredEmail && (data.customer?.email||'').toLowerCase()!==enteredEmail){
+          alert('Email does not match this Order ID.');
+          return;
+        }
+        renderTrack(snap.id,data);
+      });
+    }
+
+    trackBtn.addEventListener('click', ()=>{
+      const id=(trackOrderId.value||'').trim();
+      const email=(trackEmail.value||'').trim().toLowerCase();
+      if(!id || !email) return alert('Enter both Email and Order ID.');
+      startOrderTracking(id,email);
+    });
+
+    cancelBtn.addEventListener('click', async ()=>{
+      const id=cancelBtn.dataset.orderId;
+      if(!id) return;
+      if(!confirm('Cancel this order?')) return;
+      const dRef=doc(db,'orders',id);
+      const snap=await getDoc(dRef);
+      if(!snap.exists()) return alert('Order not found.');
+      const data=snap.data();
+      // Re-check eligibility
+      const created=data.createdAt?.toMillis?data.createdAt.toMillis():0;
+      const windowMs=data.cancelableForMs||5*60*1000;
+      const eligible = data.status==='pending' && (Date.now() < created+windowMs);
+      if(!eligible) return alert('Order can no longer be cancelled.');
+      await updateDoc(dRef,{ status:'cancelled', cancelledAt: serverTimestamp(), cancelledBy:'customer' });
+      alert('Order cancelled.');
+    });
+
+    // Auto-track last order if we have both id + email
+    const lastId=localStorage.getItem('royal_last_order');
+    const lastEmail=(localStorage.getItem('royal_last_email')||'').toLowerCase();
+    if(lastId && lastEmail){
+      trackEmail.value=lastEmail;
+      trackOrderId.value=lastId;
+      startOrderTracking(lastId,lastEmail);
+    }
+  </script>
+</body>
+</html>
